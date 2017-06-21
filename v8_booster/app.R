@@ -6,6 +6,7 @@ sourceCpp("modGMS.cpp")
 
 
 ui <- fluidPage(
+  tags$head(includeScript("google-analytics.js")),
   tabsetPanel(
     id="panels",
     tabPanel(title = strong("Baseline"),
