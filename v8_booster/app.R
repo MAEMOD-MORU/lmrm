@@ -302,9 +302,6 @@ server <- function(input, output, session) {
     tm_3 = input$tm_3,          # timing of 3rd round [2018+(2/12) to 2021 - 1 month steps]
     dm = input$dm,
     lossd = input$lossd,
-    cm_1 = input$cm_1,
-    cm_2 = input$cm_2,
-    cm_3 = input$cm_3,
     
     MSATscale = input$MSATscale,
     covMSATi = input$covMSATi,
