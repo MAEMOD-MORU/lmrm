@@ -6,7 +6,6 @@ sourceCpp("modGMS.cpp")
 
 
 ui <- fluidPage(
-  tags$head(includeScript("google-analytics.js")),
   tabsetPanel(
     id="panels",
     tabPanel(title = strong("Baseline"),
@@ -38,14 +37,14 @@ ui <- fluidPage(
              column(4,
                     wellPanel(
                       h3("Early Diagnosis and Treatment"),
-                      checkboxInput(inputId="EDATon", label = "switch on scale up of EDAT ", value = FALSE),
+                      checkboxInput(inputId="EDATon", label = "switch on scale up of EDAT ", value = TRUE),
                       checkboxInput(inputId="primon", label = "ACT+primaquine for EDAT and MDA ", value = FALSE), #under EDAT checkbox
                       sliderInput(inputId="EDATscale", label = "years to scale up EDAT ", value = 1, min=.25, max=3, step=.25),
                       sliderInput(inputId="covEDATi", label = "new % of all clinical cases treated", value = 70, min=0, max=100,step=5)
                     )), 
              column(4,wellPanel(
                       h3("Insecticide Treated Net (LLIN)"),
-                      checkboxInput(inputId="ITNon", label = "switch on scale up of LLIN", value = FALSE),
+                      checkboxInput(inputId="ITNon", label = "switch on scale up of LLIN", value = TRUE),
                       sliderInput(inputId="ITNscale", label = "years to universal access to LLIN", value = 1, min=.25, max=3, step=.25),
                       sliderInput(inputId="covITNi", label = "new bed-net use of LLIN (%)", value = 90, min=0, max=90,step=5)
                     )),
@@ -58,7 +57,7 @@ ui <- fluidPage(
   ),
   tabPanel(title = strong("Interventions under trial: Focal MVDA (hotspot)"),
                      column(3,
-                            checkboxInput(inputId="MDAon", label = "switch on MDA", value = FALSE), #6
+                            checkboxInput(inputId="MDAon", label = "switch on MDA", value = TRUE), #6
                             sliderInput(inputId="lossd", label = "days prophylaxis provided by the ACT", value = 30, min=15, max=30,step=1),
                             sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5)
                             
@@ -75,7 +74,7 @@ ui <- fluidPage(
                             sliderInput(inputId="tm_3", label = "timing of 3rd round [2018+ no. of month]", value = 11, min=3, max=36,step=1)
                      ),
                      column(3,
-                            radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 0, inline=TRUE),
+                            radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 1, inline=TRUE),
                             sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
                             sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
@@ -116,7 +115,6 @@ ui <- fluidPage(
                        tags$li("Trần Đăng Nguyên"),
                        tags$li("Trần Nguyễn Anh Thư"),
                        tags$li("Daniel M Parker"),
-                       tags$li("Professor Maciej F Boni"),
                        tags$li("Professor Arjen M Dondorp"),
                        tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
                      ))
@@ -257,10 +255,10 @@ runGMS<-function(initprev, scenario, param)
 
 
 server <- function(input, output, session) {
-  scenario_0<-c(EDATon = 0,
-                ITNon = 0,
+  scenario_0<-c(EDATon = 1,
+                ITNon = 1,
                 IRSon = 0,
-                MDAon = 0,
+                MDAon = 1,
                 primon = 0,
                 MSATon = 0,
                 VACon = 0)
@@ -302,6 +300,9 @@ server <- function(input, output, session) {
     tm_3 = input$tm_3,          # timing of 3rd round [2018+(2/12) to 2021 - 1 month steps]
     dm = input$dm,
     lossd = input$lossd,
+    cm_1 = input$cm_1,
+    cm_2 = input$cm_2,
+    cm_3 = input$cm_3,
     
     MSATscale = input$MSATscale,
     covMSATi = input$covMSATi,
