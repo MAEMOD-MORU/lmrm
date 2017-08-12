@@ -229,7 +229,8 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   double tau = covEDAT;
   
-  double fail = ((Y+startyear)<2019)*(percfail2018/100)+((Y+startyear)>=2019)*((Y+startyear)<2020)*(percfail2019/100)+((Y+startyear)>=2020)*(percfail2020/100);
+  //double fail = ((Y+startyear)<2019)*(percfail2018/100)+((Y+startyear)>=2019)*((Y+startyear)<2020)*(percfail2019/100)+((Y+startyear)>=2020)*(percfail2020/100);
+  double fail = ((Y+startyear)<2018)*(percfail2018/100)+((Y+startyear)>=2018)*((Y+startyear)<2019)*(((percfail2019-percfail2018)/100)*(Y+startyear-2019)+(percfail2018/100))+((Y+startyear)>=2019)*((Y+startyear)<2020)*(((percfail2020-percfail2019)/100)*(Y+startyear-2020)+(percfail2019/100))+((Y+startyear)>=2020)*(percfail2020/100);
 
   // MDA and RTS,S rounds
   // Additional file: Equation no.15
