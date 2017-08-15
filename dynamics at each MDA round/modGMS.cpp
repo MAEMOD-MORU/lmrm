@@ -177,22 +177,23 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   covITNi = ITNon*covITNi+(1-ITNon)*covITN0;
   covIRSi = IRSon*covIRSi+(1-IRSon)*covIRS0;
   
-  double sS = S_0+S_1+S_2+S_3;
-  double sR = R_0+R_1+R_2+R_3;
-  double sIC = IC_0+IC_1+IC_2+IC_3;
-  double sIA = IA_0+IA_1+IA_2+IA_3;
-  double sIU = IU_0+IU_1+IU_2+IU_3;
-  double sTr = Tr_0+Tr_1+Tr_2+Tr_3;
-  double sSm = Sm_0+Sm_1+Sm_2+Sm_3;
-  double sRm = Rm_0+Rm_1+Rm_2+Rm_3;
+  double sS = S_0+S_1+S_2+S_3+S_4;
+  double sR = R_0+R_1+R_2+R_3+R_4;
+  double sIC = IC_0+IC_1+IC_2+IC_3+IC_4;
+  double sIA = IA_0+IA_1+IA_2+IA_3+IA_4;
+  double sIU = IU_0+IU_1+IU_2+IU_3+IU_4;
+  double sTr = Tr_0+Tr_1+Tr_2+Tr_3+Tr_4;
+  double sSm = Sm_0+Sm_1+Sm_2+Sm_3+Sm_4;
+  double sRm = Rm_0+Rm_1+Rm_2+Rm_3+Rm_4;
   
   // define variables
   double P = (sS+sR+sIC+sIA+sIU+sTr+sSm+sRm);
-  double seas=1+alpha*cos(2*3.14159*(Y-phi));
+  //double seas=1+alpha*cos(2*3.14159*(Y-phi));
   double bh=bh_max/(1+alpha);
   
   // Additional file: Equation no.10
-  double beta=seas*b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
+  //double beta=seas*b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
+  double beta=b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
   
   double mu_out = mu+muC+muA+muU;
   
@@ -216,20 +217,16 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   // vaccine effects
   // Additional file: Equation no.17
-  //double v_1 = VACon*((Y>(tm_1-startyear))*(Y<=tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_1)*(log(2)/vh))), effv_1))+(Y>tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_1-dm)*(log(2)/vh)),effv_1)));
-  //double v_2 = VACon*((Y>(tm_2-startyear))*(Y<=tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_2)*(log(2)/vh))), effv_2))+(Y>tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_2-dm)*(log(2)/vh)),effv_2)));
-  //double v_3 = VACon*((Y>(tm_3-startyear))*(Y<=tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_3)*(log(2)/vh))), effv_3))+(Y>tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_3-dm)*(log(2)/vh)),effv_3)));
-  //double v_4 = VACon*((Y>(tm_4-startyear))*(Y<=tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_4)*(log(2)/vh))), effv_4))+(Y>tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_4-dm)*(log(2)/vh)),effv_4)));
-  double v_1 = VACon*((Y>((tm_1+dm+(2/52))-startyear))*effv_1*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_1+dm+(2/52))),0.0)/vh),0.8)));
-  double v_2 = VACon*((Y>((tm_2+dm+(2/52))-startyear))*effv_2*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_2+dm+(2/52))),0.0)/vh),0.8)));
-  double v_3 = VACon*((Y>((tm_3+dm+(2/52))-startyear))*effv_3*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_3+dm+(2/52))),0.0)/vh),0.8)));
-  double v_4 = VACon*((Y>((tm_4+dm+(2/52))-startyear))*effv_4*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_4+dm+(2/52))),0.0)/vh),0.8)));
-    
+  double v_1 = VACon*((Y>(tm_1-startyear))*(Y<=tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_1)*(log(2)/vh))), effv_1))+(Y>tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_1-dm)*(log(2)/vh)),effv_1)));
+  double v_2 = VACon*((Y>(tm_2-startyear))*(Y<=tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_2)*(log(2)/vh))), effv_2))+(Y>tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_2-dm)*(log(2)/vh)),effv_2)));
+  double v_3 = VACon*((Y>(tm_3-startyear))*(Y<=tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_3)*(log(2)/vh))), effv_3))+(Y>tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_3-dm)*(log(2)/vh)),effv_3)));
+  double v_4 = VACon*((Y>(tm_4-startyear))*(Y<=tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_4)*(log(2)/vh))), effv_4))+(Y>tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_4-dm)*(log(2)/vh)),effv_4)));
+  
   // Additional file: Equation no.16
-  double lam_1 = (1-(cmda_1*v_1))*lam;
-  double lam_2 = (1-(cmda_2*v_2))*lam;
-  double lam_3 = (1-(cmda_3*v_3))*lam;
-  double lam_4 = (1-(cmda_4*v_4))*lam;
+  double lam_1 = (1-v_1)*lam;
+  double lam_2 = (1-v_2)*lam;
+  double lam_3 = (1-v_3)*lam;
+  double lam_4 = (1-v_4)*lam;
   
   double tau = covEDAT;
   
