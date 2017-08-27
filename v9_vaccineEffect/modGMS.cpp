@@ -60,7 +60,9 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
     effv_2=effv_2/100;
   double effv_3=parameters["effv_3"];
     effv_3=effv_3/100;
-  double effv_4= effv_3;  // booster vaccine, effect of vaccine is assumed to resemble the 3rd dose
+  //double effv_4= effv_3;  // booster vaccine, effect of vaccine is assumed to resemble the 3rd dose
+  double effv_4 = parameters["effv_4"];
+    effv_4=effv_4/100;
   double rhoa=parameters["rhoa"];
     rhoa=rhoa/100;
   double rhou=parameters["rhou"];
@@ -188,10 +190,25 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   //**
   //new vaccine
+  double y01_1 = state["y01_1"];
+  double y02_1 = state["y02_1"];
+  double yf_1 = state["yf_1"];
+  double ys_1 = state["ys_1"];
+  
+  double y01_2 = state["y01_2"];
+  double y02_2 = state["y02_2"];
+  double yf_2 = state["yf_2"];
+  double ys_2 = state["ys_2"];
+  
   double y01_3 = state["y01_3"];
   double y02_3 = state["y02_3"];
   double yf_3 = state["yf_3"];
   double ys_3 = state["ys_3"];
+  
+  double y01_4 = state["y01_4"];
+  double y02_4 = state["y02_4"];
+  double yf_4 = state["yf_4"];
+  double ys_4 = state["ys_4"];
   
   
   // swtich on double interventions
@@ -249,12 +266,33 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   //**
   //new vaccine
-  double dy01_3 = -m_deploy*y01_3*(Y>(tm_3+dm-startyear))*VACon;
-  double dy02_3 = (m_deploy*y01_3*(Y>(tm_3+dm-startyear))*VACon)-(ka*y02_3);
+  double dy01_1 = -m_deploy*y01_1*(Y>(tm_1-startyear))*VACon; //(Y>(tm_1+dm-startyear))
+  double dy02_1 = (m_deploy*y01_1*(Y>(tm_1-startyear))*VACon)-(ka*y02_1);
+  double dyf_1 = ka*y02_1-(kf+delta)*yf_1;
+  double dys_1 =  kf*yf_1 - ks*ys_1;
+  
+  double pv_1 = yf_1+ys_1; 
+  
+  double dy01_2 = -m_deploy*y01_2*(Y>(tm_2-startyear))*VACon; //(Y>(tm_2+dm-startyear))
+  double dy02_2 = (m_deploy*y01_2*(Y>(tm_2-startyear))*VACon)-(ka*y02_2);
+  double dyf_2 = ka*y02_2-(kf+delta)*yf_2;
+  double dys_2 =  kf*yf_2 - ks*ys_2;
+  
+  double pv_2 = yf_2+ys_2; 
+  
+  double dy01_3 = -m_deploy*y01_3*(Y>(tm_3-startyear))*VACon; //(Y>(tm_3+dm-startyear))
+  double dy02_3 = (m_deploy*y01_3*(Y>(tm_3-startyear))*VACon)-(ka*y02_3);
   double dyf_3 = ka*y02_3-(kf+delta)*yf_3;
   double dys_3 =  kf*yf_3 - ks*ys_3;
   
   double pv_3 = yf_3+ys_3;  
+  
+  double dy01_4 = -m_deploy*y01_4*(Y>(tm_4-startyear))*VACon; //(Y>(tm_4+dm-startyear))
+  double dy02_4 = (m_deploy*y01_4*(Y>(tm_4-startyear))*VACon)-(ka*y02_4);
+  double dyf_4 = ka*y02_4-(kf+delta)*yf_4;
+  double dys_4 =  kf*yf_4 - ks*ys_4;
+  
+  double pv_4 = yf_4+ys_4; 
   // Additional file: Equation no.16
   //double lam_1 = (1-(cmda_1*v_1))*lam;
   //double lam_2 = (1-(cmda_2*v_2))*lam;
@@ -264,12 +302,12 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   //**
   //new vaccine
   //currently using maximum vaccine effect of 3rd dose for all 4 rounds
-  double lam_1 =(1-pv_3)*lam;
-  double lam_2 =(1-pv_3)*lam;
+  double lam_1 =(1-pv_1)*lam;
+  double lam_2 =(1-pv_2)*lam;
   //double lam_1 = lam;
   //double lam_2 = lam;
   double lam_3 =(1-pv_3)*lam;
-  double lam_4 =(1-pv_3)*lam;
+  double lam_4 =(1-pv_4)*lam;
   
   double tau = covEDAT;
   
@@ -389,10 +427,22 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   output["dRm_4"]=dRm_4;
   //**
   //new vaccine
+  output["dy01_1"]=dy01_1;
+  output["dy02_1"]=dy02_1;
+  output["dyf_1"]=dyf_1;
+  output["dys_1"]=dys_1;
+  output["dy01_2"]=dy01_2;
+  output["dy02_2"]=dy02_2;
+  output["dyf_2"]=dyf_2;
+  output["dys_2"]=dys_2;
   output["dy01_3"]=dy01_3;
   output["dy02_3"]=dy02_3;
   output["dyf_3"]=dyf_3;
   output["dys_3"]=dys_3;
+  output["dy01_4"]=dy01_4;
+  output["dy02_4"]=dy02_4;
+  output["dyf_4"]=dyf_4;
+  output["dys_4"]=dys_4;
 
   return output;
     

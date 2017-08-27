@@ -79,6 +79,7 @@ ui <- fluidPage(
                             sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
                             sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
+                            sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100),
                             sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
                      )
             ),
@@ -210,7 +211,10 @@ runGMS<-function(initprev, scenario, param)
              S_2 = 0, IC_2 = 0, IA_2 = 0, IU_2 = 0, R_2 = 0, Tr_2 = 0, Sm_2 = 0, Rm_2 = 0,
              S_3 = 0, IC_3 = 0, IA_3 = 0, IU_3 = 0, R_3 = 0, Tr_3 = 0, Sm_3 = 0, Rm_3 = 0,
              S_4 = 0, IC_4 = 0, IA_4 = 0, IU_4 = 0, R_4 = 0, Tr_4 = 0, Sm_4 = 0, Rm_4 = 0,
-             y01_3=as.vector(param["effv_3"])/100, y02_3 = 0, yf_3=0, ys_3=0
+             y01_1=as.vector(param["effv_1"])/100, y02_1 = 0, yf_1=0, ys_1=0,
+             y01_2=as.vector(param["effv_2"])/100, y02_2 = 0, yf_2=0, ys_2=0,
+             y01_3=as.vector(param["effv_3"])/100, y02_3 = 0, yf_3=0, ys_3=0,
+             y01_4=as.vector(param["effv_4"])/100, y02_4 = 0, yf_4=0, ys_4=0
   )
   
   
@@ -314,6 +318,7 @@ server <- function(input, output, session) {
     effv_1 = input$effv_1,
     effv_2 = input$effv_2,
     effv_3 = input$effv_3,
+    effv_4 = input$effv_4,
     vh = input$vh
   ))
   
