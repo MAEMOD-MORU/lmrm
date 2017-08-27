@@ -129,6 +129,20 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double bh_max =parameters["bh_max"];
   double startyear=2007;
   
+  //**
+  //parameters for new vaccine
+  //maximal vaccine effect after dose 1,2, and booster are to follow
+  //double p_max_3 = effv_3; // maximal vaccine effect after dose 3
+  
+  //constant across all vaccine rounds
+  double m_deploy = 1/dm; // rate of deployment of mass vaccination
+  double ka = 52/2; // 1/(time to full protective effect of vaccine after dose),rate of getting the maximal vaccine p_max effect
+  double kf = 5.62; // fast rate of loss of vaccine protective effect
+  double ks = 0.4; // slow rate of loss of vaccine protective effect, ref Michael White 2015
+  double delta = 12/1; // 1/(time to transition between fast and slow rate for loss of vaccine protection)
+
+  // switch for vaccine is a timeseries based on tm_i
+  
   // states
   double Y = state["Y"];
   double S_0 = state["S_0"];
@@ -171,6 +185,14 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double Tr_4 = state["Tr_4"];
   double Sm_4 = state["Sm_4"];
   double Rm_4 = state["Rm_4"];
+  
+  //**
+  //new vaccine
+  double y01_3 = state["y01_3"];
+  double y02_3 = state["y02_3"];
+  double yf_3 = state["yf_3"];
+  double ys_3 = state["ys_3"];
+  
   
   // swtich on double interventions
   covEDATi = EDATon*covEDATi+(1-EDATon)*covEDAT0;
@@ -220,16 +242,34 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   //double v_2 = VACon*((Y>(tm_2-startyear))*(Y<=tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_2)*(log(2)/vh))), effv_2))+(Y>tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_2-dm)*(log(2)/vh)),effv_2)));
   //double v_3 = VACon*((Y>(tm_3-startyear))*(Y<=tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_3)*(log(2)/vh))), effv_3))+(Y>tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_3-dm)*(log(2)/vh)),effv_3)));
   //double v_4 = VACon*((Y>(tm_4-startyear))*(Y<=tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_4)*(log(2)/vh))), effv_4))+(Y>tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_4-dm)*(log(2)/vh)),effv_4)));
-  double v_1 = VACon*((Y>((tm_1+dm+(2/52))-startyear))*effv_1*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_1+dm+(2/52))),0.0)/vh),0.8)));
-  double v_2 = VACon*((Y>((tm_2+dm+(2/52))-startyear))*effv_2*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_2+dm+(2/52))),0.0)/vh),0.8)));
-  double v_3 = VACon*((Y>((tm_3+dm+(2/52))-startyear))*effv_3*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_3+dm+(2/52))),0.0)/vh),0.8)));
-  double v_4 = VACon*((Y>((tm_4+dm+(2/52))-startyear))*effv_4*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_4+dm+(2/52))),0.0)/vh),0.8)));
-    
+  //double v_1 = VACon*((Y>((tm_1+dm+(2/52))-startyear))*effv_1*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_1+dm+(2/52))),0.0)/vh),0.8)));
+  //double v_2 = VACon*((Y>((tm_2+dm+(2/52))-startyear))*effv_2*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_2+dm+(2/52))),0.0)/vh),0.8)));
+  //double v_3 = VACon*((Y>((tm_3+dm+(2/52))-startyear))*effv_3*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_3+dm+(2/52))),0.0)/vh),0.8)));
+  //double v_4 = VACon*((Y>((tm_4+dm+(2/52))-startyear))*effv_4*exp(-log(2)*std::pow((std::max((Y+startyear-(tm_4+dm+(2/52))),0.0)/vh),0.8)));
+  
+  //**
+  //new vaccine
+  double dy01_3 = -m_deploy*y01_3*(Y>(tm_3+dm-startyear))*VACon;
+  double dy02_3 = (m_deploy*y01_3*(Y>(tm_3+dm-startyear))*VACon)-(ka*y02_3);
+  double dyf_3 = ka*y02_3-(kf+delta)*yf_3;
+  double dys_3 =  kf*yf_3 - ks*ys_3;
+  
+  double pv_3 = yf_3+ys_3;  
   // Additional file: Equation no.16
-  double lam_1 = (1-(cmda_1*v_1))*lam;
-  double lam_2 = (1-(cmda_2*v_2))*lam;
-  double lam_3 = (1-(cmda_3*v_3))*lam;
-  double lam_4 = (1-(cmda_4*v_4))*lam;
+  //double lam_1 = (1-(cmda_1*v_1))*lam;
+  //double lam_2 = (1-(cmda_2*v_2))*lam;
+  //double lam_3 = (1-(cmda_3*v_3))*lam;
+  //double lam_4 = (1-(cmda_4*v_4))*lam;
+  
+  //**
+  //new vaccine
+  //currently using maximum vaccine effect of 3rd dose for all 4 rounds
+  double lam_1 =(1-pv_3)*lam;
+  double lam_2 =(1-pv_3)*lam;
+  //double lam_1 = lam;
+  //double lam_2 = lam;
+  double lam_3 =(1-pv_3)*lam;
+  double lam_4 =(1-pv_3)*lam;
   
   double tau = covEDAT;
   
@@ -347,6 +387,12 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   output["dTr_4"]=dTr_4;
   output["dSm_4"]=dSm_4;
   output["dRm_4"]=dRm_4;
+  //**
+  //new vaccine
+  output["dy01_3"]=dy01_3;
+  output["dy02_3"]=dy02_3;
+  output["dyf_3"]=dyf_3;
+  output["dys_3"]=dys_3;
 
   return output;
     
