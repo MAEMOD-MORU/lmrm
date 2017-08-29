@@ -269,28 +269,28 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double dy01_1 = -m_deploy*y01_1*(Y>(tm_1-startyear))*VACon; //(Y>(tm_1+dm-startyear))
   double dy02_1 = (m_deploy*y01_1*(Y>(tm_1-startyear))*VACon)-(ka*y02_1);
   double dyf_1 = ka*y02_1-(kf+delta)*yf_1;
-  double dys_1 =  kf*yf_1 - ks*ys_1;
+  double dys_1 =  delta*yf_1 - ks*ys_1;
   
   double pv_1 = yf_1+ys_1; 
   
   double dy01_2 = -m_deploy*y01_2*(Y>(tm_2-startyear))*VACon; //(Y>(tm_2+dm-startyear))
   double dy02_2 = (m_deploy*y01_2*(Y>(tm_2-startyear))*VACon)-(ka*y02_2);
   double dyf_2 = ka*y02_2-(kf+delta)*yf_2;
-  double dys_2 =  kf*yf_2 - ks*ys_2;
+  double dys_2 =  delta*yf_2 - ks*ys_2;
   
   double pv_2 = yf_2+ys_2; 
   
   double dy01_3 = -m_deploy*y01_3*(Y>(tm_3-startyear))*VACon; //(Y>(tm_3+dm-startyear))
   double dy02_3 = (m_deploy*y01_3*(Y>(tm_3-startyear))*VACon)-(ka*y02_3);
   double dyf_3 = ka*y02_3-(kf+delta)*yf_3;
-  double dys_3 =  kf*yf_3 - ks*ys_3;
+  double dys_3 =  delta*yf_3 - ks*ys_3;
   
   double pv_3 = yf_3+ys_3;  
   
   double dy01_4 = -m_deploy*y01_4*(Y>(tm_4-startyear))*VACon; //(Y>(tm_4+dm-startyear))
   double dy02_4 = (m_deploy*y01_4*(Y>(tm_4-startyear))*VACon)-(ka*y02_4);
   double dyf_4 = ka*y02_4-(kf+delta)*yf_4;
-  double dys_4 =  kf*yf_4 - ks*ys_4;
+  double dys_4 =  delta*yf_4 - ks*ys_4;
   
   double pv_4 = yf_4+ys_4; 
   // Additional file: Equation no.16
