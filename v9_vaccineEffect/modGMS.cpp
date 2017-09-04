@@ -54,12 +54,13 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double cmda_3=parameters["cmda_3"];
     cmda_3=cmda_3/100;
   double cmda_4=0; // booster vaccine, coverage for MdA is 0
-  double effv_1=parameters["effv_1"];
-    effv_1=effv_1/100;
-  double effv_2=parameters["effv_2"];
-    effv_2=effv_2/100;
+  //double effv_1=parameters["effv_1"];
+    //effv_1=effv_1/100;
+  //double effv_2=parameters["effv_2"];
+    //effv_2=effv_2/100;
   double effv_3=parameters["effv_3"];
     effv_3=effv_3/100;
+  
   //double effv_4= effv_3;  // booster vaccine, effect of vaccine is assumed to resemble the 3rd dose
   double effv_4 = parameters["effv_4"];
     effv_4=effv_4/100;
