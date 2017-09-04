@@ -76,11 +76,12 @@ ui <- fluidPage(
                      ),
                      column(3,
                             radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 0, inline=TRUE),
+                            checkboxInput(inputId="v_only", label = "Vaccinate everyone", value = FALSE), #1/Vaccine at same coverage as MDA
                             #sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
                             #sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
-                            sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100),
-                            sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
+                            sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100)
+                            #sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
                      )
             ),
             tabPanel(title = strong("Interventions under trial: Focal MSAT (mobile)"),
@@ -319,7 +320,8 @@ server <- function(input, output, session) {
     #effv_2 = input$effv_2,
     effv_3 = input$effv_3,
     effv_4 = input$effv_4,
-    vh = input$vh
+    v_only = (!input$v_only)
+    #vh = input$vh
   ))
   
   #getting back previous parameters
@@ -371,7 +373,7 @@ server <- function(input, output, session) {
     #updateSliderInput(session, "effv_1", value = datavalue()[41])
     #updateSliderInput(session, "effv_2", value = datavalue()[42])
     updateSliderInput(session, "effv_3", value = datavalue()[43])
-    updateSliderInput(session, "vh", value = datavalue()[44])
+    #updateSliderInput(session, "vh", value = datavalue()[44])
     
   })
   
