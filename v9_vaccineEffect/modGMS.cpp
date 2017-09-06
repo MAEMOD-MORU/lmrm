@@ -139,10 +139,14 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   //constant across all vaccine rounds
   double m_deploy = 1/dm; // rate of deployment of mass vaccination
-  double ka = 52/2; // 1/(time to full protective effect of vaccine after dose),rate of getting the maximal vaccine p_max effect
-  double kf = 5.62; // fast rate of loss of vaccine protective effect
-  double ks = 0.4; // slow rate of loss of vaccine protective effect, ref Michael White 2015
-  double delta = 12/5; // 1/(time to transition between fast and slow rate for loss of vaccine protection)
+  double ka = parameters["ka"];//52/2; // 1/(time  in weeks to full protective effect of vaccine after dose),rate of getting the maximal vaccine p_max effect
+    ka = 52/ka;
+  double kf = parameters["kf"];//5.62; // fast rate of loss of vaccine protective effect
+    kf = 365*log(2)/kf;
+  double ks = parameters["ks"];//0.4; // slow rate of loss of vaccine protective effect, ref Michael White 2015
+    ks = 365*log(2)/ks;
+  double delta = parameters["delta"];//12/5; // 1/(time in months to transition between fast and slow rate for loss of vaccine protection)
+    delta = 12/delta;
 
   // switch for vaccine is a timeseries based on tm_i
   
@@ -287,7 +291,7 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   double pv_4 = yf_4+ys_4; 
   // Additional file: Equation no.16
-  double sw=parameters["v_only"]; //if 1 then Vaccinate hotspots only
+  double sw=parameters["v_same"]; //if 1 then Vaccinate hotspots only
   
   double lam_1 = (1-((cmda_1*sw+(1-sw))*pv_1))*lam;
   double lam_2 = (1-((cmda_2*sw+(1-sw))*pv_2))*lam;

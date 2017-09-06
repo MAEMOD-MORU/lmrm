@@ -12,7 +12,7 @@ ui <- fluidPage(
     tabPanel(title = strong("Baseline"),
              column(3,
                     sliderInput(inputId="API", label = "baseline API", value = 10, min=1, max=100,step=0.5),
-                    sliderInput(inputId="bh_max", label = "number of mosquito bites per human per night (peak season)", value = 20, min=0, max=80,step=1), #change range 0-80, Dan's data
+                    sliderInput(inputId="bh_max", label = "number of mosquito bites per human per night (peak season)", value = 20, min=0, max=80,step=1), #change range 0-80, Dan data
                     sliderInput(inputId="eta", label = "% of all infections that are caught outside the village (forest)", value = 30, min=0, max=100,step=10),
                     sliderInput(inputId="covEDAT0", label = "baseline % of all clinical cases treated", value = 25, min=0, max=100)
              ),
@@ -60,13 +60,16 @@ ui <- fluidPage(
                      column(3,
                             checkboxInput(inputId="MDAon", label = "switch on MDA", value = FALSE), #6
                             sliderInput(inputId="lossd", label = "days prophylaxis provided by the ACT", value = 30, min=15, max=30,step=1),
-                            sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5)
-                            
+                            sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5),
+                            sliderInput(inputId = "ka", label = "weeks to full protective effect of vaccine after dose", value = 2, min=1, max=8),
+                            sliderInput(inputId = "delta", label = "months to transition between fast and slow component of vaccine", value = 5, min=1, max=12)
                      ),
                      column(3,
                             sliderInput(inputId="cmda_1", label = "effective population coverage of focal MDA in round 1 ", value = 50, min=0, max=100,step=10),
                             sliderInput(inputId="cmda_2", label = "effective population coverage of focal MDA in round 2 ", value = 50, min=0, max=100,step=10),
-                            sliderInput(inputId="cmda_3", label = "effective population coverage of focal MDA in round 3 ", value = 50, min=0, max=100,step=10)
+                            sliderInput(inputId="cmda_3", label = "effective population coverage of focal MDA in round 3 ", value = 50, min=0, max=100,step=10),
+                            sliderInput(inputId = "kf", label = "days with fast component of vaccine", value = 45, min=15, max=60),
+                            sliderInput(inputId = "ks", label = "days with slow component of vaccine", value = 634, min=500, max=800)
                      ),
                      
                      column(3,
@@ -76,12 +79,9 @@ ui <- fluidPage(
                      ),
                      column(3,
                             radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 0, inline=TRUE),
-                            checkboxInput(inputId="v_only", label = "Vaccinate everyone", value = FALSE), #1/Vaccine at same coverage as MDA
-                            #sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
-                            #sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
+                            checkboxInput(inputId="v_same", label = "Vaccinate at same coverage as MDA", value = TRUE), #1/Vaccine at same coverage as MDA
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
                             sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100)
-                            #sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
                      )
             ),
             tabPanel(title = strong("Interventions under trial: Focal MSAT (mobile)"),
@@ -270,7 +270,8 @@ server <- function(input, output, session) {
                 MDAon = 0,
                 primon = 0,
                 MSATon = 0,
-                VACon = 0)
+                VACon = 0,
+                v_same = 0)
   
   scenario_iR<-reactive(c(EDATon = input$EDATon,
                           ITNon = input$ITNon,
@@ -278,7 +279,8 @@ server <- function(input, output, session) {
                           MDAon = input$MDAon,
                           primon = input$primon,
                           MSATon = input$MSATon,
-                          VACon = as.numeric(input$VACon)))
+                          VACon = as.numeric(input$VACon),
+                          v_same = input$v_same))
   
   parametersR <- reactive(c(
     bh_max = input$bh_max,                 # bites per human per night
@@ -320,7 +322,10 @@ server <- function(input, output, session) {
     #effv_2 = input$effv_2,
     effv_3 = input$effv_3,
     effv_4 = input$effv_4,
-    v_only = (!input$v_only)
+    ka = input$ka,
+    delta = input$delta,
+    kf = input$kf,
+    ks = input$ks
     #vh = input$vh
   ))
   
