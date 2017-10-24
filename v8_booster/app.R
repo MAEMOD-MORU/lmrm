@@ -118,7 +118,7 @@ ui <- fluidPage(
                        tags$li("Daniel M Parker"),
                        tags$li("Professor Maciej F Boni"),
                        tags$li("Professor Arjen M Dondorp"),
-                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
+                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa J White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
                      ))
   ),
   fluidRow(plotOutput(outputId = "MODEL")),
@@ -188,7 +188,7 @@ runGMS<-function(initprev, scenario, param)
                   rhou = 17,                   # relative infectivity of asymptomatic microscopically undetectable carriers compared with clinical infections (%) [N]
                   ps = 90,                     # % of all non-immune new infections that are clinical [N]
                   pr = 20,                     # % of all immune new infections that are clinical [N]
-                  mu = 50,                      # life expectancy (years) [N]
+                  mu = 69,                      # life expectancy (years) [N]
                   param)
   
   
