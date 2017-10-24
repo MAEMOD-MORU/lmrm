@@ -226,17 +226,22 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double lam_2 = (1-v_2)*lam;
   double lam_3 = (1-v_3)*lam;
   double lam_4 = (1-v_4)*lam;
+  //double lam_1 = (1-(cmda_1*v_1))*lam;
+  //double lam_2 = (1-(cmda_2*v_2))*lam;
+  //double lam_3 = (1-(cmda_3*v_3))*lam;
+  //double lam_4 = (1-(cmda_4*v_4))*lam;
   
   double tau = covEDAT;
   
-  double fail = ((Y+startyear)<2019)*(percfail2018/100)+((Y+startyear)>=2019)*((Y+startyear)<2020)*(percfail2019/100)+((Y+startyear)>=2020)*(percfail2020/100);
+  //double fail = ((Y+startyear)<2019)*(percfail2018/100)+((Y+startyear)>=2019)*((Y+startyear)<2020)*(percfail2019/100)+((Y+startyear)>=2020)*(percfail2020/100);
+  double fail = ((Y+startyear)<2018)*(percfail2018/100)+((Y+startyear)>=2018)*((Y+startyear)<2019)*(((percfail2019-percfail2018)/100)*(Y+startyear-2019)+(percfail2018/100))+((Y+startyear)>=2019)*((Y+startyear)<2020)*(((percfail2020-percfail2019)/100)*(Y+startyear-2020)+(percfail2019/100))+((Y+startyear)>=2020)*(percfail2020/100);
 
   // MDA and RTS,S rounds
   // Additional file: Equation no.15
   double m_1= MDAon*(Y>(tm_1-startyear))*(Y<=(tm_1+dm-startyear))*(-log((1-cm_1))/dm);
   double m_2= MDAon*(Y>(tm_2-startyear))*(Y<=(tm_2+dm-startyear))*(-log((1-cm_2))/dm);
   double m_3= MDAon*(Y>(tm_3-startyear))*(Y<=(tm_3+dm-startyear))*(-log((1-cm_3))/dm); 
-  double m_4= MDAon*(Y>(tm_3-startyear))*(Y<=(tm_3+dm-startyear))*(-log((1-cm_3))/dm); // m4 is the same as m3
+  double m_4= MDAon*(Y>(tm_4-startyear))*(Y<=(tm_4+dm-startyear))*(-log((1-cm_3))/dm); // coverage of m4 is the same as m3
   double m_5= 0;
   
   // Additional file: Equation no.18 

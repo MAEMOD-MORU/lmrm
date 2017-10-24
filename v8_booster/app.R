@@ -91,7 +91,7 @@ ui <- fluidPage(
                      column(3,
                             sliderInput(inputId="MSATsensC", label = "sensitivity HS RDT (clinical) ", value = 99, min=0, max=100,step=5),
                             sliderInput(inputId="MSATsensA", label = "sensitivity HS RDT (micro detectable, asym)", value = 87, min=0, max=100,step=5),
-                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 4, min=0, max=100,step=5)
+                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 44, min=0, max=100,step=5)
                      )
             ),
             tabPanel(title= strong("Download"),
@@ -218,7 +218,8 @@ runGMS<-function(initprev, scenario, param)
     tmp<-modGMSrcpp(t,state,parameters)
     return(list(tmp))
   }
-  out <- ode(y = state, times = times, func = WmodGMSrcpp, parms = parameters)
+  #out <- ode(y = state, times = times, func = WmodGMSrcpp, parms = parameters)
+  out <- ode(y = state, times = times, func = WmodGMSrcpp, parms = parameters, method="vode")
   
   # MODEL OUTPUTS
   ipop <- 5:44
