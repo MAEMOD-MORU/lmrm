@@ -54,13 +54,16 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double cmda_3=parameters["cmda_3"];
     cmda_3=cmda_3/100;
   double cmda_4=0; // booster vaccine, coverage for MdA is 0
-  double effv_1=parameters["effv_1"];
-    effv_1=effv_1/100;
-  double effv_2=parameters["effv_2"];
-    effv_2=effv_2/100;
+  //double effv_1=parameters["effv_1"];
+    //effv_1=effv_1/100;
+  //double effv_2=parameters["effv_2"];
+    //effv_2=effv_2/100;
   double effv_3=parameters["effv_3"];
     effv_3=effv_3/100;
-  double effv_4= effv_3;  // booster vaccine, effect of vaccine is assumed to resemble the 3rd dose
+  
+  //double effv_4= effv_3;  // booster vaccine, effect of vaccine is assumed to resemble the 3rd dose
+  double effv_4 = parameters["effv_4"];
+    effv_4=effv_4/100;
   double rhoa=parameters["rhoa"];
     rhoa=rhoa/100;
   double rhou=parameters["rhou"];
@@ -109,8 +112,8 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
     muU=muU/1000;
   
   //remaining variables
-  double vh = parameters["vh"];
-    vh=vh/365;
+  //double vh = parameters["vh"];
+    //vh=vh/365;
   double timei = parameters["timei"];
   double alpha = parameters["alpha"];
   double phi =  parameters["phi"];
@@ -128,6 +131,24 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double MSATscale=parameters["MSATscale"];
   double bh_max =parameters["bh_max"];
   double startyear=2007;
+  
+  //**
+  //parameters for new vaccine
+  //maximal vaccine effect after dose 1,2, and booster are to follow
+  //double p_max_3 = effv_3; // maximal vaccine effect after dose 3
+  
+  //constant across all vaccine rounds
+  double m_deploy = 1/dm; // rate of deployment of mass vaccination
+  double ka = parameters["ka"];//52/2; // 1/(time  in weeks to full protective effect of vaccine after dose),rate of getting the maximal vaccine p_max effect
+    ka = 52/ka;
+  double kf = parameters["kf"];//5.62; // fast rate of loss of vaccine protective effect
+    kf = 365*log(2)/kf;
+  double ks = parameters["ks"];//0.4; // slow rate of loss of vaccine protective effect, ref Michael White 2015
+    ks = 365*log(2)/ks;
+  double delta = parameters["delta"];//12/5; // 1/(time in months to transition between fast and slow rate for loss of vaccine protection)
+    delta = 12/delta;
+
+  // switch for vaccine is a timeseries based on tm_i
   
   // states
   double Y = state["Y"];
@@ -171,6 +192,29 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double Tr_4 = state["Tr_4"];
   double Sm_4 = state["Sm_4"];
   double Rm_4 = state["Rm_4"];
+  
+  //**
+  //new vaccine
+  double y01_1 = state["y01_1"];
+  double y02_1 = state["y02_1"];
+  double yf_1 = state["yf_1"];
+  double ys_1 = state["ys_1"];
+  
+  double y01_2 = state["y01_2"];
+  double y02_2 = state["y02_2"];
+  double yf_2 = state["yf_2"];
+  double ys_2 = state["ys_2"];
+  
+  double y01_3 = state["y01_3"];
+  double y02_3 = state["y02_3"];
+  double yf_3 = state["yf_3"];
+  double ys_3 = state["ys_3"];
+  
+  double y01_4 = state["y01_4"];
+  double y02_4 = state["y02_4"];
+  double yf_4 = state["yf_4"];
+  double ys_4 = state["ys_4"];
+  
   
   // swtich on double interventions
   covEDATi = EDATon*covEDATi+(1-EDATon)*covEDAT0;
@@ -216,20 +260,43 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   // vaccine effects
   // Additional file: Equation no.17
-  double v_1 = VACon*((Y>(tm_1-startyear))*(Y<=tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_1)*(log(2)/vh))), effv_1))+(Y>tm_1-startyear+dm)*(std::min(effv_1*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_1-dm)*(log(2)/vh)),effv_1)));
-  double v_2 = VACon*((Y>(tm_2-startyear))*(Y<=tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_2)*(log(2)/vh))), effv_2))+(Y>tm_2-startyear+dm)*(std::min(effv_2*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_2-dm)*(log(2)/vh)),effv_2)));
-  double v_3 = VACon*((Y>(tm_3-startyear))*(Y<=tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_3)*(log(2)/vh))), effv_3))+(Y>tm_3-startyear+dm)*(std::min(effv_3*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_3-dm)*(log(2)/vh)),effv_3)));
-  double v_4 = VACon*((Y>(tm_4-startyear))*(Y<=tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-(Y+startyear-tm_4)*(log(2)/vh))), effv_4))+(Y>tm_4-startyear+dm)*(std::min(effv_4*((vh/(dm*log(2)))+(1-(vh/(dm*log(2))))*exp(-log(2)*dm/vh))*exp(-(Y+startyear-tm_4-dm)*(log(2)/vh)),effv_4)));
   
+  //**
+  //new vaccine
+  double dy01_1 = -m_deploy*y01_1*(Y>(tm_1-startyear))*VACon; //(Y>(tm_1+dm-startyear))
+  double dy02_1 = (m_deploy*y01_1*(Y>(tm_1-startyear))*VACon)-(ka*y02_1);
+  double dyf_1 = ka*y02_1-(kf+delta)*yf_1;
+  double dys_1 =  delta*yf_1 - ks*ys_1;
+  
+  double pv_1 = yf_1+ys_1; 
+  
+  double dy01_2 = -m_deploy*y01_2*(Y>(tm_2-startyear))*VACon; //(Y>(tm_2+dm-startyear))
+  double dy02_2 = (m_deploy*y01_2*(Y>(tm_2-startyear))*VACon)-(ka*y02_2);
+  double dyf_2 = ka*y02_2-(kf+delta)*yf_2;
+  double dys_2 =  delta*yf_2 - ks*ys_2;
+  
+  double pv_2 = yf_2+ys_2; 
+  
+  double dy01_3 = -m_deploy*y01_3*(Y>(tm_3-startyear))*VACon; //(Y>(tm_3+dm-startyear))
+  double dy02_3 = (m_deploy*y01_3*(Y>(tm_3-startyear))*VACon)-(ka*y02_3);
+  double dyf_3 = ka*y02_3-(kf+delta)*yf_3;
+  double dys_3 =  delta*yf_3 - ks*ys_3;
+  
+  double pv_3 = yf_3+ys_3;  
+  
+  double dy01_4 = -m_deploy*y01_4*(Y>(tm_4-startyear))*VACon; //(Y>(tm_4+dm-startyear))
+  double dy02_4 = (m_deploy*y01_4*(Y>(tm_4-startyear))*VACon)-(ka*y02_4);
+  double dyf_4 = ka*y02_4-(kf+delta)*yf_4;
+  double dys_4 =  delta*yf_4 - ks*ys_4;
+  
+  double pv_4 = yf_4+ys_4; 
   // Additional file: Equation no.16
-  double lam_1 = (1-v_1)*lam;
-  double lam_2 = (1-v_2)*lam;
-  double lam_3 = (1-v_3)*lam;
-  double lam_4 = (1-v_4)*lam;
-  //double lam_1 = (1-(cmda_1*v_1))*lam;
-  //double lam_2 = (1-(cmda_2*v_2))*lam;
-  //double lam_3 = (1-(cmda_3*v_3))*lam;
-  //double lam_4 = (1-(cmda_4*v_4))*lam;
+  double sw=parameters["v_same"]; //if 1 then Vaccinate hotspots only
+  
+  double lam_1 = (1-((cmda_1*sw+(1-sw))*pv_1))*lam;
+  double lam_2 = (1-((cmda_2*sw+(1-sw))*pv_2))*lam;
+  double lam_3 = (1-((cmda_3*sw+(1-sw))*pv_3))*lam;
+  double lam_4 = (1-((cmda_4*sw+(1-sw))*pv_4))*lam;
   
   double tau = covEDAT;
   
@@ -347,6 +414,24 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   output["dTr_4"]=dTr_4;
   output["dSm_4"]=dSm_4;
   output["dRm_4"]=dRm_4;
+  //**
+  //new vaccine
+  output["dy01_1"]=dy01_1;
+  output["dy02_1"]=dy02_1;
+  output["dyf_1"]=dyf_1;
+  output["dys_1"]=dys_1;
+  output["dy01_2"]=dy01_2;
+  output["dy02_2"]=dy02_2;
+  output["dyf_2"]=dyf_2;
+  output["dys_2"]=dys_2;
+  output["dy01_3"]=dy01_3;
+  output["dy02_3"]=dy02_3;
+  output["dyf_3"]=dyf_3;
+  output["dys_3"]=dys_3;
+  output["dy01_4"]=dy01_4;
+  output["dy02_4"]=dy02_4;
+  output["dyf_4"]=dyf_4;
+  output["dys_4"]=dys_4;
 
   return output;
     

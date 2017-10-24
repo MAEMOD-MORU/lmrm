@@ -12,7 +12,7 @@ ui <- fluidPage(
     tabPanel(title = strong("Baseline"),
              column(3,
                     sliderInput(inputId="API", label = "baseline API", value = 10, min=1, max=100,step=0.5),
-                    sliderInput(inputId="bh_max", label = "number of mosquito bites per human per night (peak season)", value = 20, min=0, max=80,step=1), #change range 0-80, Dan's data
+                    sliderInput(inputId="bh_max", label = "number of mosquito bites per human per night (peak season)", value = 20, min=0, max=80,step=1), #change range 0-80, Dan data
                     sliderInput(inputId="eta", label = "% of all infections that are caught outside the village (forest)", value = 30, min=0, max=100,step=10),
                     sliderInput(inputId="covEDAT0", label = "baseline % of all clinical cases treated", value = 25, min=0, max=100)
              ),
@@ -60,13 +60,16 @@ ui <- fluidPage(
                      column(3,
                             checkboxInput(inputId="MDAon", label = "switch on MDA", value = FALSE), #6
                             sliderInput(inputId="lossd", label = "days prophylaxis provided by the ACT", value = 30, min=15, max=30,step=1),
-                            sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5)
-                            
+                            sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5),
+                            sliderInput(inputId = "ka", label = "weeks to full protective effect of vaccine after dose", value = 2, min=1, max=8),
+                            sliderInput(inputId = "delta", label = "months to transition between fast and slow component of vaccine", value = 5, min=1, max=12)
                      ),
                      column(3,
                             sliderInput(inputId="cmda_1", label = "effective population coverage of focal MDA in round 1 ", value = 50, min=0, max=100,step=10),
                             sliderInput(inputId="cmda_2", label = "effective population coverage of focal MDA in round 2 ", value = 50, min=0, max=100,step=10),
-                            sliderInput(inputId="cmda_3", label = "effective population coverage of focal MDA in round 3 ", value = 50, min=0, max=100,step=10)
+                            sliderInput(inputId="cmda_3", label = "effective population coverage of focal MDA in round 3 ", value = 50, min=0, max=100,step=10),
+                            sliderInput(inputId = "kf", label = "days with fast component of vaccine", value = 45, min=15, max=60),
+                            sliderInput(inputId = "ks", label = "days with slow component of vaccine", value = 634, min=500, max=800)
                      ),
                      
                      column(3,
@@ -76,10 +79,9 @@ ui <- fluidPage(
                      ),
                      column(3,
                             radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 0, inline=TRUE),
-                            sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
-                            sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
+                            checkboxInput(inputId="v_same", label = "Vaccinate at same coverage as MDA", value = TRUE), #1/Vaccine at same coverage as MDA
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
-                            sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
+                            sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100)
                      )
             ),
             tabPanel(title = strong("Interventions under trial: Focal MSAT (mobile)"),
@@ -91,7 +93,7 @@ ui <- fluidPage(
                      column(3,
                             sliderInput(inputId="MSATsensC", label = "sensitivity HS RDT (clinical) ", value = 99, min=0, max=100,step=5),
                             sliderInput(inputId="MSATsensA", label = "sensitivity HS RDT (micro detectable, asym)", value = 87, min=0, max=100,step=5),
-                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 44, min=0, max=100,step=5)
+                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 4, min=0, max=100,step=5)
                      )
             ),
             tabPanel(title= strong("Download"),
@@ -118,7 +120,7 @@ ui <- fluidPage(
                        tags$li("Daniel M Parker"),
                        tags$li("Professor Maciej F Boni"),
                        tags$li("Professor Arjen M Dondorp"),
-                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa J White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
+                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
                      ))
   ),
   fluidRow(plotOutput(outputId = "MODEL")),
@@ -188,7 +190,7 @@ runGMS<-function(initprev, scenario, param)
                   rhou = 17,                   # relative infectivity of asymptomatic microscopically undetectable carriers compared with clinical infections (%) [N]
                   ps = 90,                     # % of all non-immune new infections that are clinical [N]
                   pr = 20,                     # % of all immune new infections that are clinical [N]
-                  mu = 69,                      # life expectancy (years) [N]
+                  mu = 50,                      # life expectancy (years) [N]
                   param)
   
   
@@ -209,7 +211,11 @@ runGMS<-function(initprev, scenario, param)
              S_1 = 0, IC_1 = 0, IA_1 = 0, IU_1 = 0, R_1 = 0, Tr_1 = 0, Sm_1 = 0, Rm_1 = 0,
              S_2 = 0, IC_2 = 0, IA_2 = 0, IU_2 = 0, R_2 = 0, Tr_2 = 0, Sm_2 = 0, Rm_2 = 0,
              S_3 = 0, IC_3 = 0, IA_3 = 0, IU_3 = 0, R_3 = 0, Tr_3 = 0, Sm_3 = 0, Rm_3 = 0,
-             S_4 = 0, IC_4 = 0, IA_4 = 0, IU_4 = 0, R_4 = 0, Tr_4 = 0, Sm_4 = 0, Rm_4 = 0
+             S_4 = 0, IC_4 = 0, IA_4 = 0, IU_4 = 0, R_4 = 0, Tr_4 = 0, Sm_4 = 0, Rm_4 = 0,
+             y01_1=as.vector(param["effv_3"])*.008, y02_1 = 0, yf_1=0, ys_1=0,
+             y01_2=as.vector(param["effv_3"])*.009, y02_2 = 0, yf_2=0, ys_2=0,
+             y01_3=as.vector(param["effv_3"])/100, y02_3 = 0, yf_3=0, ys_3=0,
+             y01_4=as.vector(param["effv_4"])/100, y02_4 = 0, yf_4=0, ys_4=0
   )
   
   
@@ -264,7 +270,8 @@ server <- function(input, output, session) {
                 MDAon = 0,
                 primon = 0,
                 MSATon = 0,
-                VACon = 0)
+                VACon = 0,
+                v_same = 0)
   
   scenario_iR<-reactive(c(EDATon = input$EDATon,
                           ITNon = input$ITNon,
@@ -272,7 +279,8 @@ server <- function(input, output, session) {
                           MDAon = input$MDAon,
                           primon = input$primon,
                           MSATon = input$MSATon,
-                          VACon = as.numeric(input$VACon)))
+                          VACon = as.numeric(input$VACon),
+                          v_same = input$v_same))
   
   parametersR <- reactive(c(
     bh_max = input$bh_max,                 # bites per human per night
@@ -310,10 +318,15 @@ server <- function(input, output, session) {
     MSATsensA = input$MSATsensA,
     MSATsensU = input$MSATsensU,
     
-    effv_1 = input$effv_1,
-    effv_2 = input$effv_2,
+    #effv_1 = input$effv_1,
+    #effv_2 = input$effv_2,
     effv_3 = input$effv_3,
-    vh = input$vh
+    effv_4 = input$effv_4,
+    ka = input$ka,
+    delta = input$delta,
+    kf = input$kf,
+    ks = input$ks
+    #vh = input$vh
   ))
   
   #getting back previous parameters
@@ -362,10 +375,10 @@ server <- function(input, output, session) {
     updateSliderInput(session, "MSATsensC", value = datavalue()[38])
     updateSliderInput(session, "MSATsensA", value = datavalue()[39])
     updateSliderInput(session, "MSATsensU", value = datavalue()[40])
-    updateSliderInput(session, "effv_1", value = datavalue()[41])
-    updateSliderInput(session, "effv_2", value = datavalue()[42])
+    #updateSliderInput(session, "effv_1", value = datavalue()[41])
+    #updateSliderInput(session, "effv_2", value = datavalue()[42])
     updateSliderInput(session, "effv_3", value = datavalue()[43])
-    updateSliderInput(session, "vh", value = datavalue()[44])
+    #updateSliderInput(session, "vh", value = datavalue()[44])
     
   })
   

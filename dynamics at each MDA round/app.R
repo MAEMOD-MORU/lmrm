@@ -2,6 +2,7 @@ library(deSolve)
 library(shiny)
 library(TSA)
 library(Rcpp)
+#library(ggplot2)
 sourceCpp("modGMS.cpp")
 
 
@@ -91,7 +92,7 @@ ui <- fluidPage(
                      column(3,
                             sliderInput(inputId="MSATsensC", label = "sensitivity HS RDT (clinical) ", value = 99, min=0, max=100,step=5),
                             sliderInput(inputId="MSATsensA", label = "sensitivity HS RDT (micro detectable, asym)", value = 87, min=0, max=100,step=5),
-                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 44, min=0, max=100,step=5)
+                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 4, min=0, max=100,step=5)
                      )
             ),
             tabPanel(title= strong("Download"),
@@ -118,7 +119,7 @@ ui <- fluidPage(
                        tags$li("Daniel M Parker"),
                        tags$li("Professor Maciej F Boni"),
                        tags$li("Professor Arjen M Dondorp"),
-                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa J White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
+                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
                      ))
   ),
   fluidRow(plotOutput(outputId = "MODEL")),
@@ -188,7 +189,7 @@ runGMS<-function(initprev, scenario, param)
                   rhou = 17,                   # relative infectivity of asymptomatic microscopically undetectable carriers compared with clinical infections (%) [N]
                   ps = 90,                     # % of all non-immune new infections that are clinical [N]
                   pr = 20,                     # % of all immune new infections that are clinical [N]
-                  mu = 69,                      # life expectancy (years) [N]
+                  mu = 50,                      # life expectancy (years) [N]
                   param)
   
   
@@ -227,9 +228,17 @@ runGMS<-function(initprev, scenario, param)
   iinc_tot <- 4
   iprev <- c(6,  7,  8, 10, 14, 15, 16, 18, 22, 23, 24, 26, 30, 31, 32, 34, 38, 39, 40, 42)
   
+  # testing purpose
+  round0 <- seq(from=5,length.out = 8)
+  round1 <- seq(from=13,length.out = 8)
+  round2 <- seq(from=21,length.out = 8)
+  round3 <- seq(from=29,length.out = 8)
+  round4 <- seq(from=37,length.out = 8)
+  
   # population
   times<-out[,1]+startyear
   pop<-rowSums(out[,ipop])
+  
   
   
   # clinical incidence detected per 1000 per month
@@ -247,11 +256,14 @@ runGMS<-function(initprev, scenario, param)
   
   # % prevalence
   prevalence <- 100*rowSums(out[,iprev])/pop # Additional file: Equation no.13
-  GMSout<-matrix(NA,nrow=length(times),ncol=4)
+  GMSout<-matrix(NA,nrow=length(times),ncol=44)
   GMSout[,1]<-times
   GMSout[,2]<-clinmonth_det
   GMSout[,3]<-clinmonth_tot
   GMSout[,4]<-prevalence
+  for(i in 5:44){
+    GMSout[,i]<-out[,i]
+  }
   
   return(GMSout)
 }
@@ -375,7 +387,14 @@ server <- function(input, output, session) {
   GMSout0R <- reactive(runGMS(initprevR(), scenario_0,parametersR()))
   
   GMSoutiR <- reactive(runGMS(initprevR(), scenario_iR(),parametersR()))
-  
+  plotR2 <- function()
+  {
+    GMSouti<-GMSoutiR()
+    par(mfrow=c(5,8))
+    for(i in 5:44){
+      plot(GMSouti[-c(1:125),i], type='l')
+    }
+  }
   plotR <- function()
   {
     GMSout0<-GMSout0R()
@@ -425,14 +444,16 @@ server <- function(input, output, session) {
   }
   
   output$MODEL <- renderPlot({
-    plotR()
+    #plotR()
+    plotR2()
   })
   
   output$downloadplot <- downloadHandler(
     filename = function(){paste('MalMod_',gsub("\\:","",Sys.time()),'.png',sep='')},
     content = function(file) {
-      png(filename=file, height= 1600, width=4800, units= "px", res=300) #if(...=="png"){png(file)} else if(...=="pdf"){pdf(file)}
-      plotR()
+      png(filename=file, height= 4800, width=14400, units= "px", res=300) #if(...=="png"){png(file)} else if(...=="pdf"){pdf(file)}
+      #plotR()
+      plotR2()
       dev.off()
     })
   

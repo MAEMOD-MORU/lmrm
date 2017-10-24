@@ -188,11 +188,12 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   
   // define variables
   double P = (sS+sR+sIC+sIA+sIU+sTr+sSm+sRm);
-  double seas=1+alpha*cos(2*3.14159*(Y-phi));
+  //double seas=1+alpha*cos(2*3.14159*(Y-phi));
   double bh=bh_max/(1+alpha);
   
   // Additional file: Equation no.10
-  double beta=seas*b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
+  //double beta=seas*b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
+  double beta=b*epsilonh*epsilonm*bh/((bh*epsilonh+deltam)*(gammam/(gammam+deltam)));
   
   double mu_out = mu+muC+muA+muU;
   
@@ -226,10 +227,6 @@ List modGMSrcpp(double t, NumericVector state, NumericVector parameters)
   double lam_2 = (1-v_2)*lam;
   double lam_3 = (1-v_3)*lam;
   double lam_4 = (1-v_4)*lam;
-  //double lam_1 = (1-(cmda_1*v_1))*lam;
-  //double lam_2 = (1-(cmda_2*v_2))*lam;
-  //double lam_3 = (1-(cmda_3*v_3))*lam;
-  //double lam_4 = (1-(cmda_4*v_4))*lam;
   
   double tau = covEDAT;
   

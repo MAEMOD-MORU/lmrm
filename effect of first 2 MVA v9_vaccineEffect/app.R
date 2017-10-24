@@ -6,7 +6,7 @@ sourceCpp("modGMS.cpp")
 
 
 ui <- fluidPage(
-  tags$head(includeScript("google-analytics.js")),
+  #tags$head(includeScript("google-analytics.js")),
   tabsetPanel(
     id="panels",
     tabPanel(title = strong("Baseline"),
@@ -58,7 +58,7 @@ ui <- fluidPage(
   ),
   tabPanel(title = strong("Interventions under trial: Focal MVDA (hotspot)"),
                      column(3,
-                            checkboxInput(inputId="MDAon", label = "switch on MDA", value = FALSE), #6
+                            checkboxInput(inputId="MDAon", label = "switch on MDA", value = TRUE), #6
                             sliderInput(inputId="lossd", label = "days prophylaxis provided by the ACT", value = 30, min=15, max=30,step=1),
                             sliderInput(inputId="dm", label = "months to complete each round ", value = 6, min=1, max=24,step=0.5)
                             
@@ -75,10 +75,11 @@ ui <- fluidPage(
                             sliderInput(inputId="tm_3", label = "timing of 3rd round [2018+ no. of month]", value = 11, min=3, max=36,step=1)
                      ),
                      column(3,
-                            radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 0, inline=TRUE),
+                            radioButtons(inputId="VACon", label = "With vaccination: ", choices = c("No"=0, "Yes"=1), selected = 1, inline=TRUE),
                             sliderInput(inputId="effv_1", label = "% protective efficacy of RTS,S with 1st dose", value = 75, min=0, max=100),
                             sliderInput(inputId="effv_2", label = "% protective efficacy of RTS,S with 2nd dose", value = 80, min=0, max=100),
                             sliderInput(inputId="effv_3", label = "% protective efficacy of RTS,S with 3rd dose", value = 92, min=0, max=100),
+                            sliderInput(inputId="effv_4", label = "% protective efficacy of RTS,S with Booster dose", value = 92, min=0, max=100),
                             sliderInput(inputId="vh", label = "half-life of vaccine protection (days)", value = 90, min=10, max=500,step=10)
                      )
             ),
@@ -91,7 +92,7 @@ ui <- fluidPage(
                      column(3,
                             sliderInput(inputId="MSATsensC", label = "sensitivity HS RDT (clinical) ", value = 99, min=0, max=100,step=5),
                             sliderInput(inputId="MSATsensA", label = "sensitivity HS RDT (micro detectable, asym)", value = 87, min=0, max=100,step=5),
-                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 44, min=0, max=100,step=5)
+                            sliderInput(inputId="MSATsensU", label = "sensitivity HS RDT (micro undetectable, asym)", value = 4, min=0, max=100,step=5)
                      )
             ),
             tabPanel(title= strong("Download"),
@@ -118,7 +119,7 @@ ui <- fluidPage(
                        tags$li("Daniel M Parker"),
                        tags$li("Professor Maciej F Boni"),
                        tags$li("Professor Arjen M Dondorp"),
-                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa J White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
+                       tags$li(a(href="http://www.tropmedres.ac/researchers/researcher/lisa-white","Professor Lisa White, "), a(href="mailto:lisa@tropmedres.ac","lisa@tropmedres.ac"))
                      ))
   ),
   fluidRow(plotOutput(outputId = "MODEL")),
@@ -188,7 +189,7 @@ runGMS<-function(initprev, scenario, param)
                   rhou = 17,                   # relative infectivity of asymptomatic microscopically undetectable carriers compared with clinical infections (%) [N]
                   ps = 90,                     # % of all non-immune new infections that are clinical [N]
                   pr = 20,                     # % of all immune new infections that are clinical [N]
-                  mu = 69,                      # life expectancy (years) [N]
+                  mu = 50,                      # life expectancy (years) [N]
                   param)
   
   
@@ -209,7 +210,11 @@ runGMS<-function(initprev, scenario, param)
              S_1 = 0, IC_1 = 0, IA_1 = 0, IU_1 = 0, R_1 = 0, Tr_1 = 0, Sm_1 = 0, Rm_1 = 0,
              S_2 = 0, IC_2 = 0, IA_2 = 0, IU_2 = 0, R_2 = 0, Tr_2 = 0, Sm_2 = 0, Rm_2 = 0,
              S_3 = 0, IC_3 = 0, IA_3 = 0, IU_3 = 0, R_3 = 0, Tr_3 = 0, Sm_3 = 0, Rm_3 = 0,
-             S_4 = 0, IC_4 = 0, IA_4 = 0, IU_4 = 0, R_4 = 0, Tr_4 = 0, Sm_4 = 0, Rm_4 = 0
+             S_4 = 0, IC_4 = 0, IA_4 = 0, IU_4 = 0, R_4 = 0, Tr_4 = 0, Sm_4 = 0, Rm_4 = 0,
+             y01_1=as.vector(param["effv_1"])/100, y02_1 = 0, yf_1=0, ys_1=0,
+             y01_2=as.vector(param["effv_2"])/100, y02_2 = 0, yf_2=0, ys_2=0,
+             y01_3=as.vector(param["effv_3"])/100, y02_3 = 0, yf_3=0, ys_3=0,
+             y01_4=as.vector(param["effv_4"])/100, y02_4 = 0, yf_4=0, ys_4=0
   )
   
   
@@ -258,10 +263,10 @@ runGMS<-function(initprev, scenario, param)
 
 
 server <- function(input, output, session) {
-  scenario_0<-c(EDATon = 0,
-                ITNon = 0,
+  scenario_0<-c(EDATon = 1,
+                ITNon = 1,
                 IRSon = 0,
-                MDAon = 0,
+                MDAon = 1,
                 primon = 0,
                 MSATon = 0,
                 VACon = 0)
@@ -313,6 +318,50 @@ server <- function(input, output, session) {
     effv_1 = input$effv_1,
     effv_2 = input$effv_2,
     effv_3 = input$effv_3,
+    effv_4 = input$effv_4,
+    vh = input$vh
+  ))
+  
+  parametersR2 <- reactive(c(
+    bh_max = input$bh_max,                 # bites per human per night
+    eta = input$eta,
+    covEDAT0 = input$covEDAT0,
+    covITN0 = input$covITN0,
+    effITN = input$effITN,
+    covIRS0 = input$covIRS0,
+    effIRS = input$effIRS,
+    muC = input$muC,
+    muA = input$muA,
+    muU = input$muU,
+    percfail2018 = input$percfail2018,
+    percfail2019 = input$percfail2019,
+    percfail2020 = input$percfail2020,
+    
+    EDATscale = input$EDATscale,
+    covEDATi = input$covEDATi,
+    ITNscale = input$ITNscale,
+    covITNi = input$covITNi,
+    IRSscale = input$IRSscale,
+    covIRSi = input$covIRSi,
+    cmda_1 = input$cmda_1,
+    cmda_2 = input$cmda_2,
+    cmda_3 = input$cmda_3,
+    tm_1 = input$tm_1,          # timing of 1st round [2018 to 2021 - 1 month steps]
+    tm_2 = input$tm_2,          # timing of 2nd round [2018+(1/12) to 2021 - 1 month steps]
+    tm_3 = input$tm_3,          # timing of 3rd round [2018+(2/12) to 2021 - 1 month steps]
+    dm = input$dm,
+    lossd = input$lossd,
+    
+    MSATscale = input$MSATscale,
+    covMSATi = input$covMSATi,
+    MSATsensC = input$MSATsensC,
+    MSATsensA = input$MSATsensA,
+    MSATsensU = input$MSATsensU,
+    
+    effv_1 = 0,
+    effv_2 = 0,
+    effv_3 = input$effv_3,
+    effv_4 = input$effv_4,
     vh = input$vh
   ))
   
@@ -372,7 +421,11 @@ server <- function(input, output, session) {
   # initial prevalence
   initprevR <- reactive(0.001*input$API)
   
-  GMSout0R <- reactive(runGMS(initprevR(), scenario_0,parametersR()))
+  #parametersR2 <- reactive(parametersR())
+  # parametersR2()["effv_1"] <- 0
+  # parametersR2()["effv_2"] <- 0
+  # 
+  GMSout0R <- reactive(runGMS(initprevR(), scenario_0,parametersR2()))
   
   GMSoutiR <- reactive(runGMS(initprevR(), scenario_iR(),parametersR()))
   
